@@ -34,7 +34,15 @@ class TaskManager {
   }
 
   deleteTask(id: string): void {
-    // TODO: implement
+    const index = this.tasks.findIndex(task => task.id === id);
+    if (index === -1) {
+      console.log(`Task ${id} not found.`);
+      return;
+    }
+    
+    this.tasks.splice(index, 1);
+    console.log(`Task ${id} deleted.`);
+    
   }
 
   saveToFile(): void {
@@ -82,7 +90,7 @@ const welcomeASCIIBanner = `
  `;
 
 console.log(welcomeASCIIBanner);
-console.log('Available commands: add <title>, list, load, save, help, exit');
+console.log('Available commands: add <title>, list, load, save, delete <id>, help, exit');
 rl.prompt();
 
 rl.on('line', (input) => {
@@ -99,12 +107,15 @@ rl.on('line', (input) => {
     console.log('  list         - List all tasks');
     console.log('  load         - Load tasks from file');
     console.log('  save         - Save tasks to file');
+    console.log('  delete <id>  - Delete a task by ID');
     console.log('  help         - Show this help');
     console.log('  exit         - Exit the CLI');
   } else if (command === 'load') {
     taskManager.loadFromFile();
   } else if (command === 'save') {
     taskManager.saveToFile();
+  } else if (command === 'delete' && args[1]) {
+    taskManager.deleteTask(args[1]);
   } else if (command === 'exit') {
     rl.close();
   } else {
