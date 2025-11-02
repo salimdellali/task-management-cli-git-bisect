@@ -36,9 +36,21 @@ class TaskManager {
       console.log(`Task ${id} not found.`);
       return;
     }
-    
+
     task.completed = true;
     console.log(`Task ${id} marked as completed.`);
+  }
+
+  uncompleteTask(id: string): void {
+    const task = this.tasks.find(task => task.id === id);
+
+    if (!task) {
+      console.log(`Task ${id} not found.`);
+      return;
+    }
+    
+    task.completed = false;
+    console.log(`Task ${id} marked as uncompleted.`);
   }
 
   deleteTask(id: string): void {
@@ -98,7 +110,7 @@ const welcomeASCIIBanner = `
  `;
 
 console.log(welcomeASCIIBanner);
-console.log('Available commands: add <title>, list, load, save, complete <id>, delete <id>, help, exit');
+console.log('Available commands: add <title>, list, load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
 rl.prompt();
 
 rl.on('line', (input) => {
@@ -116,6 +128,7 @@ rl.on('line', (input) => {
     console.log('  load         - Load tasks from file');
     console.log('  save         - Save tasks to file');
     console.log('  complete <id> - Mark a task as completed');
+    console.log('  uncomplete <id> - Mark a task as uncompleted');
     console.log('  delete <id>  - Delete a task by ID');
     console.log('  help         - Show this help');
     console.log('  exit         - Exit the CLI');
@@ -127,6 +140,8 @@ rl.on('line', (input) => {
     taskManager.deleteTask(args[1]);
   } else if (command === 'complete' && args[1]) {
     taskManager.completeTask(args[1]);
+  } else if (command === 'uncomplete' && args[1]) {
+    taskManager.uncompleteTask(args[1]);
   } else if (command === 'exit') {
     rl.close();
   } else {
