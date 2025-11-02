@@ -8,5 +8,10 @@
     "id": "35be",
     "title": "throw garbage",
     "completed": false
+  },
+  {
+    "id": "8547",
+    "title": "clean the kitchen",
+    "completed": true
   }
 ]

@@ -8,6 +8,8 @@ interface Task {
   completed: boolean;
 }
 
+type Filter = 'all' | 'uncompleted' | 'completed';
+
 class TaskManager {
   private readonly tasks: Task[] = [];
 
@@ -20,10 +22,17 @@ class TaskManager {
     this.tasks.push(task);
   }
 
-  listTasks(): void {
+  listTasks(filter: Filter = 'all'): void {
+    let tasksToShow = this.tasks;
+    if (filter === 'uncompleted') {
+      tasksToShow = this.tasks.filter(task => !task.completed);
+    } else if (filter === 'completed') {
+      tasksToShow = this.tasks.filter(task => task.completed);
+    }
+
     console.log('ID   | Status | Title');
     console.log('-----|--------|------');
-    for (const task of this.tasks) {
+    for (const task of tasksToShow) {
       const status = task.completed ? '\x1b[32m✓\x1b[0m' : ' ';
       console.log(`${task.id.padEnd(4)} |   ${status}    | ${task.title}`);
     }
@@ -110,7 +119,7 @@ const welcomeASCIIBanner = `
  `;
 
 console.log(welcomeASCIIBanner);
-console.log('Available commands: add <title>, list, load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
+console.log('Available commands: add <title>, list [completed|uncompleted], load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
 rl.prompt();
 
 rl.on('line', (input) => {
@@ -120,11 +129,23 @@ rl.on('line', (input) => {
   if (command === 'add' && args[1]) {
     taskManager.addTask(args.slice(1).join(' '));
   } else if (command === 'list') {
-    taskManager.listTasks();
+    let filter: Filter = 'all';
+    if (args[1]) {
+      if (args[1] === 'completed') {
+        filter = 'completed';
+      } else if (args[1] === 'uncompleted') {
+        filter = 'uncompleted';
+      } else {
+        console.log('Invalid filter. Use completed or uncompleted.');
+        rl.prompt();
+        return;
+      }
+    }
+    taskManager.listTasks(filter);
     } else if (command === 'help') {
     console.log('Available commands:');
     console.log('  add <title>  - Add a new task');
-    console.log('  list         - List all tasks');
+    console.log('  list [completed|uncompleted] - List tasks (default all)');
     console.log('  load         - Load tasks from file');
     console.log('  save         - Save tasks to file');
     console.log('  complete <id> - Mark a task as completed');
