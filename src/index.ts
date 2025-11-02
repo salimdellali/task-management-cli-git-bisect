@@ -21,8 +21,11 @@ class TaskManager {
   }
 
   listTasks(): void {
+    console.log('ID   | Status | Title');
+    console.log('-----|--------|------');
     for (const task of this.tasks) {
-      console.log(`${task.id}: ${task.title} [${task.completed ? '✓' : ' '}]`);
+      const status = task.completed ? '✓' : ' ';
+      console.log(`${task.id.padEnd(4)} |   ${status}    | ${task.title}`);
     }
   }
 
@@ -37,6 +40,7 @@ class TaskManager {
   saveToFile(): void {
     fs.mkdirSync('data', { recursive: true });
     fs.writeFileSync('data/tasks.json', JSON.stringify(this.tasks, null, 2));
+    console.log('Tasks saved to file.');
   }
 
   loadFromFile(): void {
@@ -44,8 +48,9 @@ class TaskManager {
       const data = fs.readFileSync('data/tasks.json', 'utf8');
       const parsedTasks: Task[] = JSON.parse(data);
       this.tasks.splice(0, this.tasks.length, ...parsedTasks);
+      console.log('Tasks loaded from file.');
     } catch {
-      // File doesn't exist or invalid, start with empty
+      console.log('No file to load from, starting with empty task list.');
     }
   }
 }
@@ -98,12 +103,9 @@ rl.on('line', (input) => {
     console.log('  exit         - Exit the CLI');
   } else if (command === 'load') {
     taskManager.loadFromFile();
-    console.log('Tasks loaded from file.');
   } else if (command === 'save') {
     taskManager.saveToFile();
-    console.log('Tasks saved to file.');
-  }
- else if (command === 'exit') {
+  } else if (command === 'exit') {
     rl.close();
   } else {
     console.log('Unknown command. Type "help" for available commands.');
