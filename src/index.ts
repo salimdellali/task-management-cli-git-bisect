@@ -24,7 +24,7 @@ class TaskManager {
     console.log('ID   | Status | Title');
     console.log('-----|--------|------');
     for (const task of this.tasks) {
-      const status = task.completed ? '✓' : ' ';
+      const status = task.completed ? '\x1b[32m✓\x1b[0m' : ' ';
       console.log(`${task.id.padEnd(4)} |   ${status}    | ${task.title}`);
     }
   }
