@@ -17,7 +17,9 @@ class TaskManager {
   }
 
   listTasks(): void {
-    // TODO: implement
+    for (const task of this.tasks) {
+      console.log(`${task.id}: ${task.title} [${task.completed ? '✓' : ' '}]`);
+    }
   }
 
   completeTask(id: string): void {
