@@ -1,5 +1,6 @@
 import * as readline from 'node:readline';
 import { randomUUID } from 'node:crypto';
+import * as fs from 'node:fs';
 
 interface Task {
   id: string;
@@ -34,7 +35,8 @@ class TaskManager {
   }
 
   saveToFile(): void {
-    // TODO: implement
+    fs.mkdirSync('data', { recursive: true });
+    fs.writeFileSync('data/tasks.json', JSON.stringify(this.tasks, null, 2));
   }
 
   loadFromFile(): void {
@@ -86,6 +88,8 @@ rl.on('line', (input) => {
     console.log('  list         - List all tasks');
     console.log('  help         - Show this help');
     console.log('  exit         - Exit the CLI');
+  } else if (command === 'save') {
+    taskManager.saveToFile();
   } else if (command === 'exit') {
     rl.close();
   } else {
