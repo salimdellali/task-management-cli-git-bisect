@@ -1,4 +1,5 @@
 import * as readline from 'node:readline';
+import { randomUUID } from 'node:crypto';
 
 interface Task {
   id: string;
@@ -11,7 +12,7 @@ class TaskManager {
 
   addTask(title: string): void {
     const task: Task = {
-      id: Date.now().toString(),
+      id: randomUUID().substring(0, 4),
       title,
       completed: false,
     };
@@ -63,6 +64,7 @@ const welcomeASCIIBanner = `
 | |   | |    | | 
 | |___| |___ | | 
  \\____|_____|___|
+
  ####################################################################
  `;
 
