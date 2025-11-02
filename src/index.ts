@@ -39,4 +39,14 @@ class TaskManager {
   }
 }
 
-console.log('Hello World');
+const taskManager = new TaskManager();
+
+const args = process.argv.slice(2);
+
+if (args[0] === 'add' && args[1]) {
+  taskManager.addTask(args.slice(1).join(' '));
+} else if (args[0] === 'list') {
+  taskManager.listTasks();
+} else {
+  console.log('Usage: add <title> or list');
+}
