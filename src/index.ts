@@ -1,3 +1,5 @@
+import * as readline from 'node:readline';
+
 interface Task {
   id: string;
   title: string;
@@ -41,12 +43,32 @@ class TaskManager {
 
 const taskManager = new TaskManager();
 
-const args = process.argv.slice(2);
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  prompt: '> ',
+});
 
-if (args[0] === 'add' && args[1]) {
-  taskManager.addTask(args.slice(1).join(' '));
-} else if (args[0] === 'list') {
-  taskManager.listTasks();
-} else {
-  console.log('Usage: add <title> or list');
-}
+rl.prompt();
+
+rl.on('line', (input) => {
+  const args = input.trim().split(/\s+/);
+  const command = args[0];
+
+  if (command === 'add' && args[1]) {
+    taskManager.addTask(args.slice(1).join(' '));
+  } else if (command === 'list') {
+    taskManager.listTasks();
+  } else if (command === 'exit') {
+    rl.close();
+  } else {
+    console.log('Available commands: add <title>, list, exit');
+  }
+
+  rl.prompt();
+});
+
+rl.on('close', () => {
+  console.log('Goodbye!');
+  process.exit(0);
+});
