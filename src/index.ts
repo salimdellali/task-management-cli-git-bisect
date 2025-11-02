@@ -49,6 +49,25 @@ const rl = readline.createInterface({
   prompt: '> ',
 });
 
+
+const welcomeASCIIBanner = `
+####################################################################
+ _____         _      __  __                                   
+|_   _|_ _ ___| | __ |  /  | __ _ _ __   __ _  __ _  ___ _ __
+  | |/ _\` / __| |/ / | |/| |/ _\` | '_ \\ / _\` |/ _\` |/ _ \\ '__|
+  | | (_| \\__ \\   <  | | | | (_| | | | | (_| | (_| |  __/ |   
+  |_|\\__,_|___/_|\\_\\ |_| |_|\\__,_|_| |_|\\__,_|\\__, |\\___|_|   
+                                              |___/           
+  ____ _     ___ 
+ / ___| |   |_ _|
+| |   | |    | | 
+| |___| |___ | | 
+ \\____|_____|___|
+ ####################################################################
+ `;
+
+console.log(welcomeASCIIBanner);
+console.log('Available commands: add <title>, list, help, exit');
 rl.prompt();
 
 rl.on('line', (input) => {
@@ -59,10 +78,16 @@ rl.on('line', (input) => {
     taskManager.addTask(args.slice(1).join(' '));
   } else if (command === 'list') {
     taskManager.listTasks();
+  } else if (command === 'help') {
+    console.log('Available commands:');
+    console.log('  add <title>  - Add a new task');
+    console.log('  list         - List all tasks');
+    console.log('  help         - Show this help');
+    console.log('  exit         - Exit the CLI');
   } else if (command === 'exit') {
     rl.close();
   } else {
-    console.log('Available commands: add <title>, list, exit');
+    console.log('Unknown command. Type "help" for available commands.');
   }
 
   rl.prompt();
