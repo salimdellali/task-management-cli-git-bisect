@@ -8,7 +8,12 @@ class TaskManager {
   private readonly tasks: Task[] = [];
 
   addTask(title: string): void {
-    // TODO: implement
+    const task: Task = {
+      id: Date.now().toString(),
+      title,
+      completed: false,
+    };
+    this.tasks.push(task);
   }
 
   listTasks(): void {
