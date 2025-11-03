@@ -14,6 +14,10 @@ class TaskManager {
   private readonly tasks: Task[] = [];
 
   addTask(title: string): void {
+    if (!title.trim()) {
+      console.log('Task title cannot be empty.');
+      return;
+    }
     const task: Task = {
       id: randomUUID().substring(0, 4),
       title,
@@ -76,7 +80,7 @@ class TaskManager {
 
   saveToFile(): void {
     fs.mkdirSync('data', { recursive: true });
-    fs.writeFileSync('data/tasks.json', JSON.stringify(this.tasks, null, 2));
+    fs.writeFileSync('data/tasks.json', JSON.stringify(this.tasks.filter(t => !t.completed), null, 2));
     console.log('Tasks saved to file.');
   }
 
@@ -126,7 +130,7 @@ rl.on('line', (input) => {
   const args = input.trim().split(/\s+/);
   const command = args[0];
 
-  if (command === 'add' && args[1]) {
+  if (command === 'add') {
     taskManager.addTask(args.slice(1).join(' '));
   } else if (command === 'list') {
     let filter: Filter = 'all';
