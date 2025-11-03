@@ -2,16 +2,19 @@
   {
     "id": "8121",
     "title": "buy milk",
+    "priority": "Medium",
     "completed": true
   },
   {
     "id": "35be",
     "title": "throw garbage",
+    "priority": "Medium",
     "completed": false
   },
   {
     "id": "8547",
     "title": "clean the kitchen",
+    "priority": "Medium",
     "completed": true
   }
 ]

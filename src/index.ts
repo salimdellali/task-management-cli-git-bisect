@@ -2,18 +2,21 @@ import * as readline from 'node:readline';
 import { randomUUID } from 'node:crypto';
 import * as fs from 'node:fs';
 
+type Priority = 'Low' | 'Medium' | 'High';
+type Filter = 'all' | 'uncompleted' | 'completed';
+
 interface Task {
   id: string;
   title: string;
+  priority: Priority;
   completed: boolean;
 }
 
-type Filter = 'all' | 'uncompleted' | 'completed';
 
 class TaskManager {
   private readonly tasks: Task[] = [];
 
-  addTask(title: string): void {
+  addTask(title: string, priority: Priority = 'Medium'): void {
     if (!title.trim()) {
       console.log('Task title cannot be empty.');
       return;
@@ -22,6 +25,7 @@ class TaskManager {
       id: randomUUID().substring(0, 4),
       title,
       completed: false,
+      priority,
     };
     this.tasks.push(task);
   }
@@ -34,11 +38,11 @@ class TaskManager {
       tasksToShow = this.tasks.filter(task => task.completed);
     }
 
-    console.log('ID   | Status | Title');
-    console.log('-----|--------|------');
+    console.log('ID   | Status | Priority | Title');
+    console.log('-----|--------|----------|------');
     for (const task of tasksToShow) {
       const status = task.completed ? '\x1b[32m✓\x1b[0m' : ' ';
-      console.log(`${task.id.padEnd(4)} |   ${status}    | ${task.title}`);
+      console.log(`${task.id.padEnd(4)} |   ${status}    | ${task.priority.padEnd(8)} | ${task.title}`);
     }
   }
 
@@ -123,7 +127,7 @@ const welcomeASCIIBanner = `
  `;
 
 console.log(welcomeASCIIBanner);
-console.log('Available commands: add <title>, list [completed|uncompleted], load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
+console.log('Available commands: add [--low|--medium|--high] <title>, list [completed|uncompleted], load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
 rl.prompt();
 
 rl.on('line', (input) => {
@@ -131,7 +135,22 @@ rl.on('line', (input) => {
   const command = args[0];
 
   if (command === 'add') {
-    taskManager.addTask(args.slice(1).join(' '));
+    let priority: Priority;
+    let titleStartIndex = 1;
+    if (args[1] === '--low') {
+      priority = 'Low';
+      titleStartIndex = 2;
+    } else if (args[1] === '--medium') {
+      priority = 'Medium';
+      titleStartIndex = 2;
+    } else if (args[1] === '--high') {
+      priority = 'High';
+      titleStartIndex = 2;
+    } else {
+      priority = 'Medium';
+    }
+    const title = args.slice(titleStartIndex).join(' ');
+    taskManager.addTask(title, priority);
   } else if (command === 'list') {
     let filter: Filter = 'all';
     if (args[1]) {
@@ -148,7 +167,7 @@ rl.on('line', (input) => {
     taskManager.listTasks(filter);
     } else if (command === 'help') {
     console.log('Available commands:');
-    console.log('  add <title>  - Add a new task');
+    console.log('  add [--low|--medium|--high] <title>  - Add a new task (default medium priority)');
     console.log('  list [completed|uncompleted] - List tasks (default all)');
     console.log('  load         - Load tasks from file');
     console.log('  save         - Save tasks to file');
