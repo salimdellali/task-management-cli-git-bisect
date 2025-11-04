@@ -11,13 +11,14 @@ interface Task {
   title: string;
   priority: Priority;
   completed: boolean;
+  dueDate: string | null;
 }
 
 
 class TaskManager {
   private readonly tasks: Task[] = [];
 
-  addTask(title: string, priority: Priority = 'Medium'): void {
+  addTask(title: Task['title'], priority: Task['priority'] = 'Medium', dueDate: Task['dueDate']): void {
     if (!title.trim()) {
       console.log('Task title cannot be empty.');
       return;
@@ -27,6 +28,7 @@ class TaskManager {
       title,
       completed: false,
       priority,
+      dueDate,
     };
     this.tasks.push(task);
   }
@@ -49,11 +51,12 @@ class TaskManager {
       tasksToShow.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
     }
 
-    console.log('ID   | Status | Priority | Title');
-    console.log('-----|--------|----------|------');
-    for (const taskToShow of tasksToShow) {
-      const status = taskToShow.completed ? '\x1b[32m✓\x1b[0m' : ' ';
-      console.log(`${taskToShow.id.padEnd(4)} |   ${status}    | ${taskToShow.priority.padEnd(8)} | ${taskToShow.title}`);
+    console.log('ID   | Status | Priority | Due Date   | Title');
+    console.log('-----|--------|----------|------------|------');
+    for (const task of tasksToShow) {
+      const status = task.completed ? '\x1b[32m✓\x1b[0m' : ' ';
+      const dueDateStr = task.dueDate ? task.dueDate.padEnd(10) : ''.padEnd(10);
+      console.log(`${task.id.padEnd(4)} |   ${status}    | ${task.priority.padEnd(8)} | ${dueDateStr} | ${task.title}`);
     }
   }
 
@@ -138,7 +141,7 @@ const welcomeASCIIBanner = `
  `;
 
 console.log(welcomeASCIIBanner);
-console.log('Available commands: add [--low|--medium|--high] <title>, list [--highest|--lowest] [completed|uncompleted], load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
+console.log('Available commands: add [--low|--medium|--high] [--due <days>] <title>, list [--highest|--lowest] [completed|uncompleted], load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
 rl.prompt();
 
 rl.on('line', (input) => {
@@ -148,6 +151,8 @@ rl.on('line', (input) => {
   if (command === 'add') {
     let priority: Priority;
     let titleStartIndex = 1;
+
+    // Get the priority
     if (args[1] === '--low') {
       priority = 'Low';
       titleStartIndex = 2;
@@ -160,8 +165,22 @@ rl.on('line', (input) => {
     } else {
       priority = 'Medium';
     }
+
+    let dueDate: Task['dueDate'] = null;
+    if (args[titleStartIndex] === '--due') {
+      const daysStr = args[titleStartIndex + 1];
+      const days = Number.parseInt(daysStr, 10);
+      if (Number.isNaN(days) || days < 0) {
+        console.log('Invalid number of days for due date. Must be a non-negative integer.');
+        return;
+      }
+      const dueDateObj = new Date();
+      dueDateObj.setDate(dueDateObj.getDate() + days);
+      dueDate = dueDateObj.toISOString().split('T')[0];
+      titleStartIndex += 2;
+    }
     const title = args.slice(titleStartIndex).join(' ');
-    taskManager.addTask(title, priority);
+    taskManager.addTask(title, priority, dueDate);
   } else if (command === 'list') {
     let sortOrder: SortOrder;
     let filterIndex = 1;
@@ -189,7 +208,7 @@ rl.on('line', (input) => {
     taskManager.listTasks(filter, sortOrder);
     } else if (command === 'help') {
     console.log('Available commands:');
-    console.log('  add [--low|--medium|--high] <title>  - Add a new task (default medium priority)');
+    console.log('  add [--low|--medium|--high] [--due <days>] <title>  - Add a new task (default medium priority, due date in days from today)');
     console.log('  list [--highest|--lowest] [completed|uncompleted] - List tasks (default all, no sorting)');
     console.log('  load         - Load tasks from file');
     console.log('  save         - Save tasks to file');

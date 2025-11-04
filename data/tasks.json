@@ -3,18 +3,21 @@
     "id": "8121",
     "title": "buy milk",
     "priority": "Medium",
-    "completed": true
+    "completed": true,
+    "dueDate": "2025-11-05"
   },
   {
     "id": "35be",
     "title": "throw garbage",
     "priority": "Medium",
-    "completed": false
+    "completed": false,
+    "dueDate": "2025-11-06"
   },
   {
     "id": "8547",
     "title": "clean the kitchen",
     "priority": "Medium",
-    "completed": true
+    "completed": true,
+    "dueDate": null
   }
 ]
