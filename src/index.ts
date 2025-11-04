@@ -4,6 +4,7 @@ import * as fs from 'node:fs';
 
 type Priority = 'Low' | 'Medium' | 'High';
 type Filter = 'all' | 'uncompleted' | 'completed';
+type SortOrder = 'highest' | 'lowest' | 'none';
 
 interface Task {
   id: string;
@@ -30,19 +31,29 @@ class TaskManager {
     this.tasks.push(task);
   }
 
-  listTasks(filter: Filter = 'all'): void {
+  listTasks(filter: Filter = 'all', sortOrder: SortOrder = 'none'): void {
     let tasksToShow = this.tasks;
+
+    // Filter tasks if specified
     if (filter === 'uncompleted') {
       tasksToShow = this.tasks.filter(task => !task.completed);
     } else if (filter === 'completed') {
       tasksToShow = this.tasks.filter(task => task.completed);
     }
 
+    // Sort by priority if specified
+    const priorityOrder = { 'High': 3, 'Medium': 2, 'Low': 1 };
+    if (sortOrder === 'highest') {
+      tasksToShow.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+    } else if (sortOrder === 'lowest') {
+      tasksToShow.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    }
+
     console.log('ID   | Status | Priority | Title');
     console.log('-----|--------|----------|------');
-    for (const task of tasksToShow) {
-      const status = task.completed ? '\x1b[32m✓\x1b[0m' : ' ';
-      console.log(`${task.id.padEnd(4)} |   ${status}    | ${task.priority.padEnd(8)} | ${task.title}`);
+    for (const taskToShow of tasksToShow) {
+      const status = taskToShow.completed ? '\x1b[32m✓\x1b[0m' : ' ';
+      console.log(`${taskToShow.id.padEnd(4)} |   ${status}    | ${taskToShow.priority.padEnd(8)} | ${taskToShow.title}`);
     }
   }
 
@@ -127,7 +138,7 @@ const welcomeASCIIBanner = `
  `;
 
 console.log(welcomeASCIIBanner);
-console.log('Available commands: add [--low|--medium|--high] <title>, list [completed|uncompleted], load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
+console.log('Available commands: add [--low|--medium|--high] <title>, list [--highest|--lowest] [completed|uncompleted], load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
 rl.prompt();
 
 rl.on('line', (input) => {
@@ -152,11 +163,22 @@ rl.on('line', (input) => {
     const title = args.slice(titleStartIndex).join(' ');
     taskManager.addTask(title, priority);
   } else if (command === 'list') {
+    let sortOrder: SortOrder;
+    let filterIndex = 1;
+    if (args[1] === '--highest') {
+      sortOrder = 'highest';
+      filterIndex = 2;
+    } else if (args[1] === '--lowest') {
+      sortOrder = 'lowest';
+      filterIndex = 2;
+    } else {
+      sortOrder = 'none';
+    }
     let filter: Filter = 'all';
-    if (args[1]) {
-      if (args[1] === 'completed') {
+    if (args[filterIndex]) {
+      if (args[filterIndex] === 'completed') {
         filter = 'completed';
-      } else if (args[1] === 'uncompleted') {
+      } else if (args[filterIndex] === 'uncompleted') {
         filter = 'uncompleted';
       } else {
         console.log('Invalid filter. Use completed or uncompleted.');
@@ -164,11 +186,11 @@ rl.on('line', (input) => {
         return;
       }
     }
-    taskManager.listTasks(filter);
+    taskManager.listTasks(filter, sortOrder);
     } else if (command === 'help') {
     console.log('Available commands:');
     console.log('  add [--low|--medium|--high] <title>  - Add a new task (default medium priority)');
-    console.log('  list [completed|uncompleted] - List tasks (default all)');
+    console.log('  list [--highest|--lowest] [completed|uncompleted] - List tasks (default all, no sorting)');
     console.log('  load         - Load tasks from file');
     console.log('  save         - Save tasks to file');
     console.log('  complete <id> - Mark a task as completed');
