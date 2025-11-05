@@ -53,9 +53,22 @@ class TaskManager {
 
     console.log('ID   | Status | Priority | Due Date   | Title');
     console.log('-----|--------|----------|------------|------');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     for (const task of tasksToShow) {
       const status = task.completed ? '\x1b[32m✓\x1b[0m' : ' ';
-      const dueDateStr = task.dueDate ? task.dueDate.padEnd(10) : ''.padEnd(10);
+      let dueDateStr = task.dueDate ? task.dueDate.padEnd(10) : ''.padEnd(10);
+      
+      // Check if task is overdue (has due date, not completed, and due date is before today)
+      if (task.dueDate && !task.completed) {
+        const dueDate = new Date(task.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        if (dueDate < today) {
+          dueDateStr = `\x1b[31m${task.dueDate.padEnd(10)}\x1b[0m`;
+        }
+      }
+      
       console.log(`${task.id.padEnd(4)} |   ${status}    | ${task.priority.padEnd(8)} | ${dueDateStr} | ${task.title}`);
     }
   }
