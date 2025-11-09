@@ -18,7 +18,7 @@ interface Task {
 class TaskManager {
   private readonly tasks: Task[] = [];
 
-  addTask(title: Task['title'], priority: Task['priority'] = 'Medium', dueDate: Task['dueDate']): void {
+  addTask(title: Task['title'], dueDate: Task['dueDate'], priority: Task['priority'] = 'Medium'): void {
     if (!title.trim()) {
       console.log('Task title cannot be empty.');
       return;
@@ -31,6 +31,15 @@ class TaskManager {
       dueDate,
     };
     this.tasks.push(task);
+  }
+
+  showSummary(): void {
+    const totalTasks = this.tasks.length;
+    const completedTasks = this.tasks.filter(task => task.completed).length;
+    const pendingTasks = totalTasks - completedTasks;
+    console.log(`Total: ${totalTasks}`);
+    console.log(`Pending: ${pendingTasks}`);
+    console.log(`Completed: ${completedTasks}`);
   }
 
   listTasks(filter: Filter = 'all', sortOrder: SortOrder = 'none'): void {
@@ -154,7 +163,7 @@ const welcomeASCIIBanner = `
  `;
 
 console.log(welcomeASCIIBanner);
-console.log('Available commands: add [--low|--medium|--high] [--due <days>] <title>, list [--highest|--lowest] [completed|uncompleted], load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
+console.log('Available commands: add [--low|--medium|--high] [--due <days>] <title>, list [--highest|--lowest] [completed|uncompleted], summary, load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
 rl.prompt();
 
 rl.on('line', (input) => {
@@ -193,7 +202,7 @@ rl.on('line', (input) => {
       titleStartIndex += 2;
     }
     const title = args.slice(titleStartIndex).join(' ');
-    taskManager.addTask(title, priority, dueDate);
+    taskManager.addTask(title, dueDate, priority);
   } else if (command === 'list') {
     let sortOrder: SortOrder;
     let filterIndex = 1;
@@ -219,10 +228,13 @@ rl.on('line', (input) => {
       }
     }
     taskManager.listTasks(filter, sortOrder);
+    } else if (command === 'summary') {
+    taskManager.showSummary();
     } else if (command === 'help') {
     console.log('Available commands:');
     console.log('  add [--low|--medium|--high] [--due <days>] <title>  - Add a new task (default medium priority, due date in days from today)');
     console.log('  list [--highest|--lowest] [completed|uncompleted] - List tasks (default all, no sorting)');
+    console.log('  summary      - Show task count summary');
     console.log('  load         - Load tasks from file');
     console.log('  save         - Save tasks to file');
     console.log('  complete <id> - Mark a task as completed');
