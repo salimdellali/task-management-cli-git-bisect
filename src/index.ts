@@ -42,6 +42,35 @@ class TaskManager {
     console.log(`Completed: ${completedTasks}`);
   }
 
+  private displayTasks(tasks: Task[]): void {
+    console.log('ID   | Status | Priority | Due Date   | Title');
+    console.log('-----|--------|----------|------------|------');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (const task of tasks) {
+      const status = task.completed ? '\x1b[32m✓\x1b[0m' : ' ';
+      let dueDateStr = task.dueDate ? task.dueDate.padEnd(10) : ''.padEnd(10);
+      
+      // Check if task is overdue (has due date, not completed, and due date is before today)
+      if (task.dueDate && !task.completed) {
+        const dueDate = new Date(task.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        if (dueDate < today) {
+          dueDateStr = `\x1b[31m${task.dueDate.padEnd(10)}\x1b[0m`;
+        }
+      }
+      
+      console.log(`${task.id.padEnd(4)} |   ${status}    | ${task.priority.padEnd(8)} | ${dueDateStr} | ${task.title}`);
+    }
+  }
+
+  searchTasks(keyword: string): void {
+    const MatchedTasksToShow = this.tasks.filter(task => task.title.toLowerCase().includes(keyword.toLowerCase()));
+    console.log('Search results:');
+    this.displayTasks(MatchedTasksToShow);
+  }
+
   listTasks(filter: Filter = 'all', sortOrder: SortOrder = 'none'): void {
     let tasksToShow = this.tasks;
 
@@ -60,26 +89,7 @@ class TaskManager {
       tasksToShow.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
     }
 
-    console.log('ID   | Status | Priority | Due Date   | Title');
-    console.log('-----|--------|----------|------------|------');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    for (const task of tasksToShow) {
-      const status = task.completed ? '\x1b[32m✓\x1b[0m' : ' ';
-      let dueDateStr = task.dueDate ? task.dueDate.padEnd(10) : ''.padEnd(10);
-      
-      // Check if task is overdue (has due date, not completed, and due date is before today)
-      if (task.dueDate && !task.completed) {
-        const dueDate = new Date(task.dueDate);
-        dueDate.setHours(0, 0, 0, 0);
-        if (dueDate < today) {
-          dueDateStr = `\x1b[31m${task.dueDate.padEnd(10)}\x1b[0m`;
-        }
-      }
-      
-      console.log(`${task.id.padEnd(4)} |   ${status}    | ${task.priority.padEnd(8)} | ${dueDateStr} | ${task.title}`);
-    }
+    this.displayTasks(tasksToShow);
   }
 
   completeTask(id: string): void {
@@ -163,7 +173,7 @@ const welcomeASCIIBanner = `
  `;
 
 console.log(welcomeASCIIBanner);
-console.log('Available commands: add [--low|--medium|--high] [--due <days>] <title>, list [--highest|--lowest] [completed|uncompleted], summary, load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
+console.log('Available commands: add [--low|--medium|--high] [--due <days>] <title>, list [--highest|--lowest] [completed|uncompleted], summary, search <title>, load, save, complete <id>, uncomplete <id>, delete <id>, help, exit');
 rl.prompt();
 
 rl.on('line', (input) => {
@@ -230,11 +240,14 @@ rl.on('line', (input) => {
     taskManager.listTasks(filter, sortOrder);
     } else if (command === 'summary') {
     taskManager.showSummary();
+    } else if (command === 'search' && args[1]) {
+    taskManager.searchTasks(args.slice(1).join(' '));
     } else if (command === 'help') {
     console.log('Available commands:');
     console.log('  add [--low|--medium|--high] [--due <days>] <title>  - Add a new task (default medium priority, due date in days from today)');
     console.log('  list [--highest|--lowest] [completed|uncompleted] - List tasks (default all, no sorting)');
     console.log('  summary      - Show task count summary');
+    console.log('  search <title> - Search tasks by title');
     console.log('  load         - Load tasks from file');
     console.log('  save         - Save tasks to file');
     console.log('  complete <id> - Mark a task as completed');
