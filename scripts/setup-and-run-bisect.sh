@@ -49,11 +49,11 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 # git bisect run <script>: THE MAGIC COMMAND
 # Automatically runs the test script at each bisect step:
 # - Git checks out a commit in the middle of the range
-# - Runs scripts/test-bisect.sh
+# - Runs scripts/bisect.sh
 # - Based on exit code (0=good, 1=bad, 125=skip), marks commit
 # - Repeats binary search until it finds the exact commit that introduced the bug
 # Example: 16 commits → 4 tests instead of 16 (log₂(n) complexity)
-git bisect run scripts/test-bisect.sh
+git bisect run scripts/bisect.sh
 
 echo ""
 echo "✅ Bisect complete!"
